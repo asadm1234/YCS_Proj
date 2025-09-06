@@ -1,1 +1,1 @@
-# YCS_Proj
+# This is my submission for the YCS Climate Change competition. I intended to make a small but impactful web app that allows for people to improve their well-being while not having to go out of there way to log it on paper or more. This is a way to check it online, which has more accessibility. I also went for the UN SDG 3, Good Health and Well Being.
