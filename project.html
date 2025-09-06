@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WellnessTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fffe;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            color: #2b6cb0;
+            font-size: 2.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #4a5568;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .sdg-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .daily-checklist {
+            display: grid;
+            gap: 12px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+            transition: all 0.2s ease;
+        }
+
+        .checklist-item:hover {
+            background: #edf2f7;
+            transform: translateX(2px);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+            accent-color: #4299e1;
+        }
+
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .checklist-item.completed {
+            background: #f0fff4;
+            border-left-color: #48bb78;
+            opacity: 0.8;
+        }
+
+        .checklist-item.completed label {
+            text-decoration: line-through;
+            color: #68d391;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #68d391;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #48bb78;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .mood-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mood-btn {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-size: 1.5em;
+        }
+
+        .mood-btn:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .mood-btn.selected {
+            border-color: #4299e1;
+            background: #4299e1;
+            color: white;
+        }
+
+        .water-tracker {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #ebf8ff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .water-visual {
+            display: flex;
+            gap: 8px;
+        }
+
+        .water-glass {
+            width: 25px;
+            height: 35px;
+            border: 2px solid #4299e1;
+            border-radius: 4px;
+            position: relative;
+            background: #f7fafc;
+        }
+
+        .water-glass.filled {
+            background: #4299e1;
+        }
+
+        .tips-section {
+            background: #f0fff4;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+            margin-bottom: 20px;
+        }
+
+        .tip {
+            padding: 10px 0;
+            border-bottom: 1px solid #c6f6d5;
+            font-size: 0.95em;
+            color: #2d3748;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e53e3e;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .mood-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 WellnessTracker</h1>
+            <p>Your personal health and well-being assistant</p>
+            <div class="sdg-badge">🎯 UN SDG 3: Good Health and Well-being</div>
+        </div>
+
+        <div class="main-content">
+            <!-- Daily Progress Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="dailyScore">72</div>
+                    <div class="stat-label">Wellness Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="streakDays">5</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTasks">6/10</div>
+                    <div class="stat-label">Tasks Done</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="weeklyAvg">68</div>
+                    <div class="stat-label">Weekly Avg</div>
+                </div>
+            </div>
+
+            <!-- Daily Health Checklist -->
+            <div class="section">
+                <h2>📋 Daily Health Checklist</h2>
+                <div class="daily-checklist" id="checklist">
+                    <!-- Checklist items will be populated here -->
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 60%"></div>
+                </div>
+                <p style="text-align: center; margin-top: 10px; color: #4a5568; font-size: 0.9em;">
+                    <span id="progressText">6 of 10 tasks completed today</span>
+                </p>
+            </div>
+
+            <!-- Water Intake Tracker -->
+            <div class="section">
+                <h2>💧 Water Intake</h2>
+                <div class="water-tracker">
+                    <div class="water-visual" id="waterGlasses">
+                        <!-- Water glasses will be generated here -->
+                    </div>
+                    <div>
+                        <p><strong id="waterCount">5</strong> glasses today (Goal: 8)</p>
+                        <button class="btn btn-secondary" onclick="addWater()" style="margin-top: 8px;">Add Glass +1</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood Tracker -->
+            <div class="section">
+                <h2>😊 How are you feeling today?</h2>
+                <div class="mood-selector">
+                    <div class="mood-btn" data-mood="terrible" onclick="selectMood('terrible', '😰')">😰<br><small>Terrible</small></div>
+                    <div class="mood-btn" data-mood="bad" onclick="selectMood('bad', '😞')">😞<br><small>Bad</small></div>
+                    <div class="mood-btn selected" data-mood="okay" onclick="selectMood('okay', '😐')">😐<br><small>Okay</small></div>
+                    <div class="mood-btn" data-mood="good" onclick="selectMood('good', '😊')">😊<br><small>Good</small></div>
+                    <div class="mood-btn" data-mood="excellent" onclick="selectMood('excellent', '😄')">😄<br><small>Excellent</small></div>
+                </div>
+                <div class="form-group">
+                    <label>What's affecting your mood today? (optional)</label>
+                    <textarea id="moodNotes" placeholder="Work stress, good sleep, exercise, social time..." rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- Quick Health Log -->
+            <div class="section">
+                <h2>📝 Quick Health Log</h2>
+                <div class="form-group">
+                    <label>Hours of sleep last night</label>
+                    <input type="number" id="sleepHours" min="0" max="12" step="0.5" value="7.5">
+                </div>
+                <div class="form-group">
+                    <label>Energy level (1-10)</label>
+                    <input type="range" id="energyLevel" min="1" max="10" value="6" oninput="updateEnergyDisplay()">
+                    <span id="energyDisplay">6/10</span>
+                </div>
+                <div class="form-group">
+                    <label>Any symptoms or concerns?</label>
+                    <input type="text" id="symptoms" placeholder="Headache, back pain, feeling great, etc.">
+                </div>
+                <button class="btn" onclick="saveHealthLog()">Save Today's Log</button>
+            </div>
+
+            <!-- Health Tips -->
+            <div class="tips-section">
+                <h3 style="color: #2d3748; margin-bottom: 15px;">💡 Today's Health Tips</h3>
+                <div class="tip">
+                    <strong>Hydration:</strong> Drink water first thing in the morning to kickstart your metabolism
+                </div>
+                <div class="tip">
+                    <strong>Movement:</strong> Take a 5-minute walking break every hour if you work at a desk
+                </div>
+                <div class="tip">
+                    <strong>Mental Health:</strong> Practice 3 deep breaths when feeling stressed or overwhelmed
+                </div>
+                <div class="tip">
+                    <strong>Sleep:</strong> Try to go to bed and wake up at the same time every day, even on weekends
+                </div>
+            </div>
+
+            <!-- Emergency Resources -->
+            <div class="alert">
+                <strong>Need immediate help?</strong> 
+                Mental Health Crisis: 988 | Emergency: 911 | 
+                <a href="https://www.cdc.gov/mentalhealth/tools-resources/index.htm" target="_blank">Find local resources</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App state
+        let appState = {
+            waterGlasses: 5,
+            currentMood: 'okay',
+            checkedItems: new Set([0, 1, 2, 3, 4, 5]), // Some items already checked
+            wellnessScore: 72,
+            streak: 5
+        };
+
+        // Daily health checklist items
+        const checklistItems = [
+            "Drank at least 8 glasses of water",
+            "Got 7-9 hours of sleep",
+            "Ate at least 3 servings of fruits/vegetables",
+            "Did 30 minutes of physical activity",
+            "Took breaks from screen time",
+            "Practiced deep breathing or meditation",
+            "Connected with friends or family",
+            "Spent time outdoors or in natural light",
+            "Took vitamins or medications as prescribed",
+            "Maintained good posture throughout the day"
+        ];
+
+        // Initialize app
+        function init() {
+            renderChecklist();
+            renderWaterTracker();
+            updateProgress();
+        }
+
+        // Render checklist
+        function renderChecklist() {
+            const checklist = document.getElementById('checklist');
+            checklist.innerHTML = checklistItems.map((item, index) => `
+                <div class="checklist-item ${appState.checkedItems.has(index) ? 'completed' : ''}">
+                    <input type="checkbox" 
+                           id="task-${index}" 
+                           ${appState.checkedItems.has(index) ? 'checked' : ''}
+                           onchange="toggleTask(${index})">
+                    <label for="task-${index}">${item}</label>
+                </div>
+            `).join('');
+        }
+
+        // Render water tracker
+        function renderWaterTracker() {
+            const container = document.getElementById('waterGlasses');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const glass = document.createElement('div');
+                glass.className = `water-glass ${i < appState.waterGlasses ? 'filled' : ''}`;
+                container.appendChild(glass);
+            }
+            
+            document.getElementById('waterCount').textContent = appState.waterGlasses;
+        }
+
+        // Toggle checklist task
+        function toggleTask(index) {
+            if (appState.checkedItems.has(index)) {
+                appState.checkedItems.delete(index);
+            } else {
+                appState.checkedItems.add(index);
+            }
+            
+            renderChecklist();
+            updateProgress();
+            calculateWellnessScore();
+        }
+
+        // Add water glass
+        function addWater() {
+            if (appState.waterGlasses < 8) {
+                appState.waterGlasses++;
+                renderWaterTracker();
+                calculateWellnessScore();
+                
+                if (appState.waterGlasses === 8) {
+                    alert('🎉 Great job! You\'ve reached your daily water goal!');
+                }
+            } else {
+                alert('Great! You\'ve exceeded your daily water goal. Remember not to over-hydrate.');
+            }
+        }
+
+        // Select mood
+        function selectMood(mood, emoji) {
+            // Remove previous selection
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            // Add selection to clicked button
+            event.target.classList.add('selected');
+            
+            appState.currentMood = mood;
+            calculateWellnessScore();
+        }
+
+        // Update energy display
+        function updateEnergyDisplay() {
+            const value = document.getElementById('energyLevel').value;
+            document.getElementById('energyDisplay').textContent = `${value}/10`;
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const completed = appState.checkedItems.size;
+            const total = checklistItems.length;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressText').textContent = `${completed} of ${total} tasks completed today`;
+            document.getElementById('completedTasks').textContent = `${completed}/${total}`;
+        }
+
+        // Calculate wellness score
+        function calculateWellnessScore() {
+            let score = 0;
+            
+            // Checklist completion (40 points max)
+            score += (appState.checkedItems.size / checklistItems.length) * 40;
+            
+            // Water intake (20 points max)
+            score += Math.min(appState.waterGlasses / 8, 1) * 20;
+            
+            // Mood (20 points max)
+            const moodScores = {
+                'terrible': 0,
+                'bad': 5,
+                'okay': 10,
+                'good': 15,
+                'excellent': 20
+            };
+            score += moodScores[appState.currentMood] || 10;
+            
+            // Sleep (20 points max - based on sleep input)
+            const sleepHours = parseFloat(document.getElementById('sleepHours').value) || 7.5;
+            if (sleepHours >= 7 && sleepHours <= 9) {
+                score += 20;
+            } else if (sleepHours >= 6 && sleepHours <= 10) {
+                score += 15;
+            } else {
+                score += 10;
+            }
+            
+            appState.wellnessScore = Math.round(score);
+            document.getElementById('dailyScore').textContent = appState.wellnessScore;
+            
+            // Update streak if score is good
+            if (appState.wellnessScore >= 70 && appState.wellnessScore > 72) {
+                appState.streak++;
+                document.getElementById('streakDays').textContent = appState.streak;
+            }
+        }
+
+        // Save health log
+        function saveHealthLog() {
+            const sleepHours = document.getElementById('sleepHours').value;
+            const energyLevel = document.getElementById('energyLevel').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const moodNotes = document.getElementById('moodNotes').value;
+            
+            // In a real app, this would save to a database
+            console.log('Health log saved:', {
+                date: new Date().toDateString(),
+                sleep: sleepHours,
+                energy: energyLevel,
+                symptoms: symptoms,
+                mood: appState.currentMood,
+                moodNotes: moodNotes,
+                wellnessScore: appState.wellnessScore
+            });
+            
+            alert('📝 Your health log has been saved! Keep up the great work tracking your wellness.');
+            calculateWellnessScore();
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+
+        // PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+
+        // Update time-based content
+        setInterval(() => {
+            // Update weekly average (simulate slight changes)
+            const weeklyAvg = document.getElementById('weeklyAvg');
+            const currentAvg = parseInt(weeklyAvg.textContent);
+            const newAvg = Math.max(50, Math.min(100, currentAvg + (Math.random() - 0.5) * 2));
+            weeklyAvg.textContent = Math.round(newAvg);
+        }, 30000); // Update every 30 seconds for demo purposes
+
+        // Save data to localStorage (simple persistence)
+        function saveData() {
+            const data = {
+                waterGlasses: appState.waterGlasses,
+                checkedItems: Array.from(appState.checkedItems),
+                currentMood: appState.currentMood,
+                wellnessScore: appState.wellnessScore,
+                streak: appState.streak,
+                lastSaved: new Date().toDateString()
+            };
+            localStorage.setItem('wellnessData', JSON.stringify(data));
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('wellnessData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                // Only load if it's from today
+                if (data.lastSaved === new Date().toDateString()) {
+                    appState.waterGlasses = data.waterGlasses || 5;
+                    appState.checkedItems = new Set(data.checkedItems || []);
+                    appState.currentMood = data.currentMood || 'okay';
+                    appState.wellnessScore = data.wellnessScore || 72;
+                    appState.streak = data.streak || 5;
+                }
+            }
+        }
+
+        // Auto-save when data changes
+        function autoSave() {
+            saveData();
+        }
+
+        // Update all functions to include auto-save
+        const originalToggleTask = toggleTask;
+        toggleTask = function(index) {
+            originalToggleTask(index);
+            autoSave();
+        };
+
+        const originalAddWater = addWater;
+        addWater = function() {
+            originalAddWater();
+            autoSave();
+        };
+
+        const originalSelectMood = selectMood;
+        selectMood = function(mood, emoji) {
+            originalSelectMood(mood, emoji);
+            autoSave();
+        };
+
+        // Load data on init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            init();
+        });
+    </script>
+</body>
+</html>
