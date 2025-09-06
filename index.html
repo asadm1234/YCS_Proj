@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WellnessTracker</title>
+    <meta name="description" content="Track your daily health habits and improve your well-being">
+    <meta name="theme-color" content="#4299e1">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
     <style>
         * {
             margin: 0;
@@ -62,6 +67,43 @@
             margin-bottom: 20px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            color: #4a5568;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: #4299e1;
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #edf2f7;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .section {
             margin-bottom: 35px;
         }
@@ -86,7 +128,7 @@
             padding: 12px;
             background: #f7fafc;
             border-radius: 8px;
-            border-left: 4px solid #4299e1;
+            border-left: 4px solid #cbd5e0;
             transition: all 0.2s ease;
         }
 
@@ -110,7 +152,6 @@
         .checklist-item.completed {
             background: #f0fff4;
             border-left-color: #48bb78;
-            opacity: 0.8;
         }
 
         .checklist-item.completed label {
@@ -154,11 +195,12 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .btn:hover {
             background: #3182ce;
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
@@ -250,29 +292,16 @@
             border-radius: 4px;
             position: relative;
             background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .water-glass:hover {
+            transform: scale(1.1);
         }
 
         .water-glass.filled {
             background: #4299e1;
-        }
-
-        .tips-section {
-            background: #f0fff4;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #48bb78;
-            margin-bottom: 20px;
-        }
-
-        .tip {
-            padding: 10px 0;
-            border-bottom: 1px solid #c6f6d5;
-            font-size: 0.95em;
-            color: #2d3748;
-        }
-
-        .tip:last-child {
-            border-bottom: none;
         }
 
         .progress-bar {
@@ -291,14 +320,50 @@
             transition: width 0.3s ease;
         }
 
-        .alert {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 12px;
-            border-radius: 6px;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid #e53e3e;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4299e1;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
             font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .date-selector {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #718096;
+            padding: 40px 20px;
+            font-style: italic;
         }
 
         @media (max-width: 600px) {
@@ -329,123 +394,165 @@
         </div>
 
         <div class="main-content">
-            <!-- Daily Progress Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="dailyScore">72</div>
-                    <div class="stat-label">Wellness Score</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="streakDays">5</div>
-                    <div class="stat-label">Day Streak</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="completedTasks">6/10</div>
-                    <div class="stat-label">Tasks Done</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="weeklyAvg">68</div>
-                    <div class="stat-label">Weekly Avg</div>
-                </div>
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('today')">📅 Today</button>
+                <button class="tab-btn" onclick="switchTab('history')">📊 History</button>
+                <button class="tab-btn" onclick="switchTab('trends')">📈 Trends</button>
             </div>
 
-            <!-- Daily Health Checklist -->
-            <div class="section">
-                <h2>📋 Daily Health Checklist</h2>
-                <div class="daily-checklist" id="checklist">
-                    <!-- Checklist items will be populated here -->
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill" style="width: 60%"></div>
-                </div>
-                <p style="text-align: center; margin-top: 10px; color: #4a5568; font-size: 0.9em;">
-                    <span id="progressText">6 of 10 tasks completed today</span>
-                </p>
-            </div>
-
-            <!-- Water Intake Tracker -->
-            <div class="section">
-                <h2>💧 Water Intake</h2>
-                <div class="water-tracker">
-                    <div class="water-visual" id="waterGlasses">
-                        <!-- Water glasses will be generated here -->
+            <!-- Today Tab -->
+            <div id="today-tab" class="tab-content active">
+                <!-- Daily Progress Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayScore">0</div>
+                        <div class="stat-label">Wellness Score</div>
                     </div>
-                    <div>
-                        <p><strong id="waterCount">5</strong> glasses today (Goal: 8)</p>
-                        <button class="btn btn-secondary" onclick="addWater()" style="margin-top: 8px;">Add Glass +1</button>
+                    <div class="stat-card">
+                        <div class="stat-number" id="streakDays">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completedTasks">0/10</div>
+                        <div class="stat-label">Tasks Done</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDays">0</div>
+                        <div class="stat-label">Days Tracked</div>
                     </div>
                 </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message">
+                    ✅ Today's wellness data has been saved successfully!
+                </div>
+
+                <!-- Daily Health Checklist -->
+                <div class="section">
+                    <h2>📋 Daily Health Checklist</h2>
+                    <div class="daily-checklist" id="checklist">
+                        <!-- Checklist items will be populated here -->
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #4a5568; font-size: 0.9em;">
+                        <span id="progressText">0 of 10 tasks completed today</span>
+                    </p>
+                </div>
+
+                <!-- Water Intake Tracker -->
+                <div class="section">
+                    <h2>💧 Water Intake</h2>
+                    <div class="water-tracker">
+                        <div class="water-visual" id="waterGlasses">
+                            <!-- Water glasses will be generated here -->
+                        </div>
+                        <div>
+                            <p><strong id="waterCount">0</strong> glasses today (Goal: 8)</p>
+                            <button class="btn btn-secondary" onclick="addWater()" style="margin-top: 8px;">Add Glass +1</button>
+                            <button class="btn" onclick="removeWater()" style="margin-top: 8px; margin-left: 8px; background: #e53e3e;">Remove -1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mood Tracker -->
+                <div class="section">
+                    <h2>😊 How are you feeling today?</h2>
+                    <div class="mood-selector">
+                        <div class="mood-btn" data-mood="terrible" onclick="selectMood('terrible', '😰')">😰<br><small>Terrible</small></div>
+                        <div class="mood-btn" data-mood="bad" onclick="selectMood('bad', '😞')">😞<br><small>Bad</small></div>
+                        <div class="mood-btn" data-mood="okay" onclick="selectMood('okay', '😐')">😐<br><small>Okay</small></div>
+                        <div class="mood-btn" data-mood="good" onclick="selectMood('good', '😊')">😊<br><small>Good</small></div>
+                        <div class="mood-btn" data-mood="excellent" onclick="selectMood('excellent', '😄')">😄<br><small>Excellent</small></div>
+                    </div>
+                    <div class="form-group">
+                        <label>What's affecting your mood today? (optional)</label>
+                        <textarea id="moodNotes" placeholder="Work stress, good sleep, exercise, social time..." rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Quick Health Log -->
+                <div class="section">
+                    <h2>📝 Health Details</h2>
+                    <div class="form-group">
+                        <label>Hours of sleep last night</label>
+                        <input type="number" id="sleepHours" min="0" max="12" step="0.5" placeholder="7.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Energy level (1-10)</label>
+                        <input type="range" id="energyLevel" min="1" max="10" value="5" oninput="updateEnergyDisplay()">
+                        <span id="energyDisplay">5/10</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Exercise/Physical Activity</label>
+                        <input type="text" id="exercise" placeholder="30 min walk, gym workout, yoga, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label>Any symptoms or concerns?</label>
+                        <input type="text" id="symptoms" placeholder="Headache, back pain, feeling great, etc.">
+                    </div>
+                    <button class="btn" onclick="saveHealthLog()" style="width: 100%; padding: 15px; font-size: 16px; font-weight: 600;">
+                        💾 Save Today's Wellness Data
+                    </button>
+                </div>
             </div>
 
-            <!-- Mood Tracker -->
-            <div class="section">
-                <h2>😊 How are you feeling today?</h2>
-                <div class="mood-selector">
-                    <div class="mood-btn" data-mood="terrible" onclick="selectMood('terrible', '😰')">😰<br><small>Terrible</small></div>
-                    <div class="mood-btn" data-mood="bad" onclick="selectMood('bad', '😞')">😞<br><small>Bad</small></div>
-                    <div class="mood-btn selected" data-mood="okay" onclick="selectMood('okay', '😐')">😐<br><small>Okay</small></div>
-                    <div class="mood-btn" data-mood="good" onclick="selectMood('good', '😊')">😊<br><small>Good</small></div>
-                    <div class="mood-btn" data-mood="excellent" onclick="selectMood('excellent', '😄')">😄<br><small>Excellent</small></div>
-                </div>
-                <div class="form-group">
-                    <label>What's affecting your mood today? (optional)</label>
-                    <textarea id="moodNotes" placeholder="Work stress, good sleep, exercise, social time..." rows="2"></textarea>
-                </div>
-            </div>
-
-            <!-- Quick Health Log -->
-            <div class="section">
-                <h2>📝 Quick Health Log</h2>
-                <div class="form-group">
-                    <label>Hours of sleep last night</label>
-                    <input type="number" id="sleepHours" min="0" max="12" step="0.5" value="7.5">
-                </div>
-                <div class="form-group">
-                    <label>Energy level (1-10)</label>
-                    <input type="range" id="energyLevel" min="1" max="10" value="6" oninput="updateEnergyDisplay()">
-                    <span id="energyDisplay">6/10</span>
-                </div>
-                <div class="form-group">
-                    <label>Any symptoms or concerns?</label>
-                    <input type="text" id="symptoms" placeholder="Headache, back pain, feeling great, etc.">
-                </div>
-                <button class="btn" onclick="saveHealthLog()">Save Today's Log</button>
-            </div>
-
-            <!-- Health Tips -->
-            <div class="tips-section">
-                <h3 style="color: #2d3748; margin-bottom: 15px;">💡 Today's Health Tips</h3>
-                <div class="tip">
-                    <strong>Hydration:</strong> Drink water first thing in the morning to kickstart your metabolism
-                </div>
-                <div class="tip">
-                    <strong>Movement:</strong> Take a 5-minute walking break every hour if you work at a desk
-                </div>
-                <div class="tip">
-                    <strong>Mental Health:</strong> Practice 3 deep breaths when feeling stressed or overwhelmed
-                </div>
-                <div class="tip">
-                    <strong>Sleep:</strong> Try to go to bed and wake up at the same time every day, even on weekends
+            <!-- History Tab -->
+            <div id="history-tab" class="tab-content">
+                <div class="section">
+                    <h2>📊 Your Wellness History</h2>
+                    <div class="date-selector">
+                        <label for="historyDate">View specific date:</label>
+                        <input type="date" id="historyDate" onchange="loadHistoryDate()">
+                        <button class="btn" onclick="clearAllData()" style="margin-left: 10px; background: #e53e3e;">Clear All Data</button>
+                    </div>
+                    <div id="historyContent">
+                        <!-- History will be populated here -->
+                    </div>
                 </div>
             </div>
 
-            <!-- Emergency Resources -->
-            <div class="alert">
-                <strong>Need immediate help?</strong> 
-                Mental Health Crisis: 988 | Emergency: 911 | 
-                <a href="https://www.cdc.gov/mentalhealth/tools-resources/index.htm" target="_blank">Find local resources</a>
+            <!-- Trends Tab -->
+            <div id="trends-tab" class="tab-content">
+                <div class="section">
+                    <h2>📈 Your Wellness Trends</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgScore">0</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="bestStreak">0</div>
+                            <div class="stat-label">Best Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalWater">0</div>
+                            <div class="stat-label">Total Water (glasses)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgSleep">0</div>
+                            <div class="stat-label">Avg Sleep (hours)</div>
+                        </div>
+                    </div>
+                    <div id="trendsContent">
+                        <p class="no-data">Start tracking your wellness to see trends and insights!</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // App state
+        // App state - starts completely fresh
         let appState = {
-            waterGlasses: 5,
-            currentMood: 'okay',
-            checkedItems: new Set([0, 1, 2, 3, 4, 5]), // Some items already checked
-            wellnessScore: 72,
-            streak: 5
+            waterGlasses: 0,
+            currentMood: null,
+            checkedItems: new Set(),
+            todayScore: 0,
+            streak: 0,
+            totalDays: 0
         };
 
         // Daily health checklist items
@@ -462,11 +569,143 @@
             "Maintained good posture throughout the day"
         ];
 
+        // Get today's date string
+        function getTodayString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
         // Initialize app
         function init() {
+            loadTodayData();
             renderChecklist();
             renderWaterTracker();
             updateProgress();
+            updateStats();
+            loadHistory();
+        }
+
+        // Load today's data from localStorage
+        function loadTodayData() {
+            const today = getTodayString();
+            const saved = localStorage.getItem(`wellness_${today}`);
+            
+            if (saved) {
+                const data = JSON.parse(saved);
+                appState.waterGlasses = data.waterGlasses || 0;
+                appState.checkedItems = new Set(data.checkedItems || []);
+                appState.currentMood = data.currentMood || null;
+                
+                // Set form values
+                if (data.sleepHours) document.getElementById('sleepHours').value = data.sleepHours;
+                if (data.energyLevel) document.getElementById('energyLevel').value = data.energyLevel;
+                if (data.exercise) document.getElementById('exercise').value = data.exercise;
+                if (data.symptoms) document.getElementById('symptoms').value = data.symptoms;
+                if (data.moodNotes) document.getElementById('moodNotes').value = data.moodNotes;
+                
+                // Update mood selector
+                if (data.currentMood) {
+                    document.querySelectorAll('.mood-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                        if (btn.dataset.mood === data.currentMood) {
+                            btn.classList.add('selected');
+                        }
+                    });
+                }
+                
+                updateEnergyDisplay();
+            }
+        }
+
+        // Save today's data
+        function saveTodayData() {
+            const today = getTodayString();
+            const data = {
+                date: today,
+                waterGlasses: appState.waterGlasses,
+                checkedItems: Array.from(appState.checkedItems),
+                currentMood: appState.currentMood,
+                sleepHours: document.getElementById('sleepHours').value,
+                energyLevel: document.getElementById('energyLevel').value,
+                exercise: document.getElementById('exercise').value,
+                symptoms: document.getElementById('symptoms').value,
+                moodNotes: document.getElementById('moodNotes').value,
+                wellnessScore: appState.todayScore,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem(`wellness_${today}`, JSON.stringify(data));
+            
+            // Update global stats
+            updateGlobalStats();
+        }
+
+        // Update global statistics
+        function updateGlobalStats() {
+            const allDays = getAllSavedDays();
+            const totalDays = allDays.length;
+            
+            // Calculate streak
+            let currentStreak = 0;
+            const today = new Date();
+            
+            for (let i = 0; i < 30; i++) { // Check last 30 days
+                const checkDate = new Date(today);
+                checkDate.setDate(checkDate.getDate() - i);
+                const dateStr = checkDate.toISOString().split('T')[0];
+                
+                if (localStorage.getItem(`wellness_${dateStr}`)) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+            
+            appState.streak = currentStreak;
+            appState.totalDays = totalDays;
+            
+            // Save global stats
+            const globalStats = {
+                streak: currentStreak,
+                totalDays: totalDays,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('wellness_global', JSON.stringify(globalStats));
+        }
+
+        // Get all saved days
+        function getAllSavedDays() {
+            const days = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('wellness_') && key !== 'wellness_global') {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    days.push(data);
+                }
+            }
+            return days.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load tab-specific data
+            if (tabName === 'history') {
+                loadHistory();
+            } else if (tabName === 'trends') {
+                loadTrends();
+            }
         }
 
         // Render checklist
@@ -483,20 +722,6 @@
             `).join('');
         }
 
-        // Render water tracker
-        function renderWaterTracker() {
-            const container = document.getElementById('waterGlasses');
-            container.innerHTML = '';
-            
-            for (let i = 0; i < 8; i++) {
-                const glass = document.createElement('div');
-                glass.className = `water-glass ${i < appState.waterGlasses ? 'filled' : ''}`;
-                container.appendChild(glass);
-            }
-            
-            document.getElementById('waterCount').textContent = appState.waterGlasses;
-        }
-
         // Toggle checklist task
         function toggleTask(index) {
             if (appState.checkedItems.has(index)) {
@@ -510,6 +735,21 @@
             calculateWellnessScore();
         }
 
+        // Render water tracker
+        function renderWaterTracker() {
+            const container = document.getElementById('waterGlasses');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const glass = document.createElement('div');
+                glass.className = `water-glass ${i < appState.waterGlasses ? 'filled' : ''}`;
+                glass.onclick = () => setWaterGlasses(i + 1);
+                container.appendChild(glass);
+            }
+            
+            document.getElementById('waterCount').textContent = appState.waterGlasses;
+        }
+
         // Add water glass
         function addWater() {
             if (appState.waterGlasses < 8) {
@@ -518,21 +758,36 @@
                 calculateWellnessScore();
                 
                 if (appState.waterGlasses === 8) {
-                    alert('🎉 Great job! You\'ve reached your daily water goal!');
+                    showMessage('🎉 Great job! You\'ve reached your daily water goal!');
                 }
             } else {
-                alert('Great! You\'ve exceeded your daily water goal. Remember not to over-hydrate.');
+                appState.waterGlasses++;
+                renderWaterTracker();
+                calculateWellnessScore();
+                showMessage('You\'ve exceeded your daily water goal! Great hydration! 💧');
             }
+        }
+
+        // Remove water glass
+        function removeWater() {
+            if (appState.waterGlasses > 0) {
+                appState.waterGlasses--;
+                renderWaterTracker();
+                calculateWellnessScore();
+            }
+        }
+
+        // Set water glasses directly
+        function setWaterGlasses(count) {
+            appState.waterGlasses = count;
+            renderWaterTracker();
+            calculateWellnessScore();
         }
 
         // Select mood
         function selectMood(mood, emoji) {
-            // Remove previous selection
             document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
-            
-            // Add selection to clicked button
             event.target.classList.add('selected');
-            
             appState.currentMood = mood;
             calculateWellnessScore();
         }
@@ -572,129 +827,24 @@
                 'good': 15,
                 'excellent': 20
             };
-            score += moodScores[appState.currentMood] || 10;
+            score += moodScores[appState.currentMood] || 0;
             
-            // Sleep (20 points max - based on sleep input)
-            const sleepHours = parseFloat(document.getElementById('sleepHours').value) || 7.5;
+            // Sleep (20 points max)
+            const sleepHours = parseFloat(document.getElementById('sleepHours').value) || 0;
             if (sleepHours >= 7 && sleepHours <= 9) {
                 score += 20;
             } else if (sleepHours >= 6 && sleepHours <= 10) {
                 score += 15;
-            } else {
+            } else if (sleepHours > 0) {
                 score += 10;
             }
             
-            appState.wellnessScore = Math.round(score);
-            document.getElementById('dailyScore').textContent = appState.wellnessScore;
-            
-            // Update streak if score is good
-            if (appState.wellnessScore >= 70 && appState.wellnessScore > 72) {
-                appState.streak++;
-                document.getElementById('streakDays').textContent = appState.streak;
-            }
+            appState.todayScore = Math.round(score);
+            document.getElementById('todayScore').textContent = appState.todayScore;
         }
 
-        // Save health log
-        function saveHealthLog() {
-            const sleepHours = document.getElementById('sleepHours').value;
-            const energyLevel = document.getElementById('energyLevel').value;
-            const symptoms = document.getElementById('symptoms').value;
-            const moodNotes = document.getElementById('moodNotes').value;
-            
-            // In a real app, this would save to a database
-            console.log('Health log saved:', {
-                date: new Date().toDateString(),
-                sleep: sleepHours,
-                energy: energyLevel,
-                symptoms: symptoms,
-                mood: appState.currentMood,
-                moodNotes: moodNotes,
-                wellnessScore: appState.wellnessScore
-            });
-            
-            alert('📝 Your health log has been saved! Keep up the great work tracking your wellness.');
-            calculateWellnessScore();
-        }
-
-        // Initialize app when page loads
-        document.addEventListener('DOMContentLoaded', init);
-
-        // PWA functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(error => console.log('SW registration failed'));
-            });
-        }
-
-        // Update time-based content
-        setInterval(() => {
-            // Update weekly average (simulate slight changes)
-            const weeklyAvg = document.getElementById('weeklyAvg');
-            const currentAvg = parseInt(weeklyAvg.textContent);
-            const newAvg = Math.max(50, Math.min(100, currentAvg + (Math.random() - 0.5) * 2));
-            weeklyAvg.textContent = Math.round(newAvg);
-        }, 30000); // Update every 30 seconds for demo purposes
-
-        // Save data to localStorage (simple persistence)
-        function saveData() {
-            const data = {
-                waterGlasses: appState.waterGlasses,
-                checkedItems: Array.from(appState.checkedItems),
-                currentMood: appState.currentMood,
-                wellnessScore: appState.wellnessScore,
-                streak: appState.streak,
-                lastSaved: new Date().toDateString()
-            };
-            localStorage.setItem('wellnessData', JSON.stringify(data));
-        }
-
-        // Load data from localStorage
-        function loadData() {
-            const saved = localStorage.getItem('wellnessData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                // Only load if it's from today
-                if (data.lastSaved === new Date().toDateString()) {
-                    appState.waterGlasses = data.waterGlasses || 5;
-                    appState.checkedItems = new Set(data.checkedItems || []);
-                    appState.currentMood = data.currentMood || 'okay';
-                    appState.wellnessScore = data.wellnessScore || 72;
-                    appState.streak = data.streak || 5;
-                }
-            }
-        }
-
-        // Auto-save when data changes
-        function autoSave() {
-            saveData();
-        }
-
-        // Update all functions to include auto-save
-        const originalToggleTask = toggleTask;
-        toggleTask = function(index) {
-            originalToggleTask(index);
-            autoSave();
-        };
-
-        const originalAddWater = addWater;
-        addWater = function() {
-            originalAddWater();
-            autoSave();
-        };
-
-        const originalSelectMood = selectMood;
-        selectMood = function(mood, emoji) {
-            originalSelectMood(mood, emoji);
-            autoSave();
-        };
-
-        // Load data on init
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            init();
-        });
-    </script>
-</body>
-</html>
+        // Update statistics
+        function updateStats() {
+            const globalStats = localStorage.getItem('wellness_global');
+            if (globalStats) {
+                const stats = JSON.parse
